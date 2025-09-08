@@ -396,3 +396,37 @@ pygame.init()
 screen = pygame.display.set_mode((800, 400))
 pygame.display.set_caption('Runner Game')
 clock = pygame.time.Clock()
+test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
+game_active = False
+paused = False
+score = 0
+start_time = 0
+lives = 3
+level = 1
+last_level = 1
+player_colors =[(255,255,255), (153, 226, 180), (24, 78, 119), (217, 237, 146), (0, 109, 119),(255,0,0),(0,255,0),(0,0,255),(255,255,0)]
+bg_music = pygame.mixer.Sound('audio/music.wav')
+bg_music.play(loops = -1)
+player_walk_1 = pygame.image.load('graphics/player/player_walk_1.png').convert_alpha()
+player_walk_2 = pygame.image.load('graphics/player/player_walk_2.png').convert_alpha()
+player_walk = [player_walk_1, player_walk_2]
+player_jump = pygame.image.load('graphics/player/jump.png').convert_alpha()
+player = pygame.sprite.GroupSingle()
+player.add(Player(player_walk, player_jump))
+obstacle_group = pygame.sprite.Group()
+heart_group = pygame.sprite.Group()
+sky_surface = pygame.image.load('graphics/Sky.png').convert()
+ground_surface = pygame.image.load('graphics/ground.png').convert()
+player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
+player_stand = pygame.transform.rotozoom(player_stand, 0, 2)
+player_stand_rect = player_stand.get_rect(center = (400, 200))
+game_name = test_font.render('Astronaut Runner', False, (111, 196, 169))
+game_name_rect = game_name.get_rect(center = (400, 80))
+game_message = test_font.render('Press space to play', False, (111, 196, 169))
+game_message_rect = game_message.get_rect(center = (400, 340))
+obstacle_timer = pygame.USEREVENT + 1
+pygame.time.set_timer(obstacle_timer, 1500)
+pause_button = pygame.Rect(10, 10, 55, 40)
+
+while True:
+    
