@@ -174,3 +174,51 @@ while True:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p:
                         paused = not paused
+                    elif event.key == pygame.K_ESCAPE:
+                        paused = True
+                    elif event.key == pygame.K_SPACE and paused:
+                        paused = False
+            else:
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    game_active = True
+                    start_time = int(pygame.time.get_ticks() / 1000)
+                    lives = 3
+                    score = 0
+                    level = 1
+                    last_level = 1
+                    paused = False
+                    player.sprite.change_color(player_colors[0])
+        if game_active and not paused:
+            if event.type == obstacle_timer:
+                obstacle_group.add(Obstacle(choice(['fly', 'snail', 'snail', 'snail'])))
+                spawn = max(600, 1500 - (level - 1) * 100)
+                pygame.time.set_timer(obstacle_timer, spawn)
+                if lives < 3 and randint(1, 10) == 1:
+                    heart.add(Heart())
+        if game_active:
+            screen.blit(sky_surface, (0,0))
+            screen.blit(ground_surface, (0, 300))
+            if not paused:
+                score = display_score()
+                life = test_font.render(f'Lives: {lives}', False, (64, 64, 64))
+                lives_rect = life.get_rect(topright = (780, 10))
+                screen.blit(life, lives_rect)
+                levels = test_font.render(f'Level: {level}', False, (64, 64, 64))
+                level_rect = levels.get_rect(center = (400, 90))
+                screen.blit(levels, level_rect)
+                player.update()
+                obstacle_group.update()
+                heart.update()
+                game_active = collision_sprite()
+            player.draw(screen)
+            obstacle_group.draw(screen)
+            heart.draw(screen)
+            pygame.draw.rect(screen, (180, 180, 180), pause_button, border_radius = 8)
+            if paused:
+                triangle_points = [
+                    (pause_button.left + 20, pause_button.top + 10),
+                    (pause_button.left + 20, pause_button.bottom - 10),
+                    (pause_button.right - 10, pause_button.centery)
+                ]
+                pygame.draw.polygon(screen, (0, 0, 0), triangle_points)
+            else:
