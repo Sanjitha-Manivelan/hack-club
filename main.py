@@ -21,13 +21,12 @@ class Player(pygame.sprite.Sprite):
         self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
         self.jump_sound.set_volume(0.5)
 
-    def change_olor(self, color):
+    def change_color(self, color):
         self.player_walk = []
         for img in self.walk_1:
             img_color = image_color(img, color)
             self.player_walk.append(img_color)
-
-        self.player_jump = img_color(self.jump_1, color)
+        self.player_jump = image_color(self.jump_1, color)
     
     def player_input(self):
         keys = pygame.key.get_pressed()
@@ -67,18 +66,19 @@ class Obstacle(pygame.sprite.Sprite):
             snail_1 = pygame.image.load('graphics/snail/snail1.png').convert_alpha()
             snail_2 = pygame.image.load('graphics/snail/snail2.png').convert_alpha()
             self.frames = [snail_1, snail_2]
-            y_pos = 210
+            y_pos = 300
         
         self.animation_index = 0
         self.image = self.frames[self.animation_index]
         self.rect = self.image.get_rect(midbottom = (randint(900, 1100), y_pos))
     
     def animation_state(self):
-        self.animatiion_index += 0.1
+        self.animation_index += 0.1
         if self.animation_index >= len(self.frames):
             self.animation_index = 0
         self.image = self.frames[int(self.animation_index)]
-    
+
+
     def update(self):
         self.animation_state()
         self.rect.x -= min(12, 6 + (level - 1))
@@ -107,7 +107,6 @@ def display_score():
     score_surf = test_font.render(f'Score: {current_time}', False, (64, 64, 64))
     score_rect = score_surf.get_rect(center = (400, 50))
     screen.blit(score_surf, score_rect)
-
     level = current_time // 10 + 1
     if level != last_level:
         last_level = level
@@ -126,6 +125,8 @@ def collision_sprite():
     if pygame.sprite.spritecollide(player.sprite, heart, True):
         lives = min(lives + 1, 3)
     return game_active
+
+
 
 pygame.init()
 screen = pygame.display.set_mode((800, 400))
@@ -149,6 +150,7 @@ player_jump = pygame.image.load('graphics/player/jump.png').convert_alpha()
 player = pygame.sprite.GroupSingle()
 player.add(Player(player_walk, player_jump))
 obstacle_group = pygame.sprite.Group()
+
 heart = pygame.sprite.Group()
 sky_surface = pygame.image.load('graphics/Sky.png').convert()
 ground_surface = pygame.image.load('graphics/ground.png').convert()
@@ -170,24 +172,24 @@ while True:
         if game_active:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pause_button.collidepoint(event.pos):
+                    paused = not paused    
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
                     paused = not paused
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_p:
-                        paused = not paused
-                    elif event.key == pygame.K_ESCAPE:
-                        paused = True
-                    elif event.key == pygame.K_SPACE and paused:
-                        paused = False
-            else:
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    game_active = True
-                    start_time = int(pygame.time.get_ticks() / 1000)
-                    lives = 3
-                    score = 0
-                    level = 1
-                    last_level = 1
+                elif event.key == pygame.K_ESCAPE:
+                    paused = True
+                elif event.key == pygame.K_SPACE and paused:
                     paused = False
-                    player.sprite.change_color(player_colors[0])
+        else:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                game_active = True
+                start_time = int(pygame.time.get_ticks() / 1000)
+                lives = 3
+                score = 0
+                level = 1
+                last_level = 1
+                paused = False
+                player.sprite.change_color(player_colors[0])
         if game_active and not paused:
             if event.type == obstacle_timer:
                 obstacle_group.add(Obstacle(choice(['fly', 'snail', 'snail', 'snail'])))
@@ -195,30 +197,20 @@ while True:
                 pygame.time.set_timer(obstacle_timer, spawn)
                 if lives < 3 and randint(1, 10) == 1:
                     heart.add(Heart())
-        if game_active:
-            screen.blit(sky_surface, (0,0))
-            screen.blit(ground_surface, (0, 300))
-            if not paused:
-                score = display_score()
-                life = test_font.render(f'Lives: {lives}', False, (64, 64, 64))
-                lives_rect = life.get_rect(topright = (780, 10))
-                screen.blit(life, lives_rect)
-                levels = test_font.render(f'Level: {level}', False, (64, 64, 64))
-                level_rect = levels.get_rect(center = (400, 90))
-                screen.blit(levels, level_rect)
-                player.update()
-                obstacle_group.update()
-                heart.update()
-                game_active = collision_sprite()
-            player.draw(screen)
-            obstacle_group.draw(screen)
-            heart.draw(screen)
-            pygame.draw.rect(screen, (180, 180, 180), pause_button, border_radius = 8)
-            if paused:
-                triangle_points = [
-                    (pause_button.left + 20, pause_button.top + 10),
-                    (pause_button.left + 20, pause_button.bottom - 10),
-                    (pause_button.right - 10, pause_button.centery)
-                ]
-                pygame.draw.polygon(screen, (0, 0, 0), triangle_points)
-            else:
+    if game_active:
+        screen.blit(sky_surface, (0,0))
+        screen.blit(ground_surface, (0, 300))
+        if not paused:
+            score = display_score()
+            life = test_font.render(f'Lives: {lives}', False, (64, 64, 64))
+            lives_rect = life.get_rect(topright = (780, 10))
+            screen.blit(life, lives_rect)
+            levels = test_font.render(f'Level: {level}', False, (64, 64, 64))
+            level_rect = levels.get_rect(center = (400, 90))
+            screen.blit(levels, level_rect)
+            player.update()
+            obstacle_group.update()
+            heart.update()
+            game_active = collision_sprite()
+        player.draw(screen)
+        obstacle_group.draw(screen)
