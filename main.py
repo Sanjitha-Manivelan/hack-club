@@ -214,3 +214,38 @@ while True:
             game_active = collision_sprite()
         player.draw(screen)
         obstacle_group.draw(screen)
+        heart.draw(screen)
+        pygame.draw.rect(screen, (180, 180, 180), pause_button, border_radius = 8)
+        if paused:
+            triangle_points = [
+                (pause_button.left + 20, pause_button.top + 10),
+                (pause_button.left + 20, pause_button.bottom - 10),
+                (pause_button.right - 10, pause_button.centery)
+            ]
+            pygame.draw.polygon(screen, (0, 0, 0), triangle_points)
+        else:
+            bar_width = 10
+            gap = 8
+            left_bar = pygame.Rect(pause_button.left + 15, pause_button.top + 10, bar_width, pause_button.height - 20)
+            right_bar = pygame.Rect(left_bar.right + gap, pause_button.top + 10, bar_width, pause_button.height - 20)
+            pygame.draw.rect(screen, (0, 0, 0), left_bar)
+            pygame.draw.rect(screen, (0, 0, 0), right_bar)
+        if paused:
+            pause = test_font.render("PAUSED", False, (200, 0, 0))
+            pause_rect = pause.get_rect(center = (400, 180))
+            screen.blit(pause, pause_rect)
+            resume = test_font.render("Click the triangle or press por press the space bar to resume", False, (200, 200, 200))
+            resume_rect = resume.get_rect(center = (400, 240))
+            screen.blit(resume, resume_rect)
+    else:
+        screen.fill((94, 129, 162))
+        screen.blit(player_stand, player_stand_rect)
+        score_message = test_font.render(f'Your Score: {score}', False, (111, 196, 169))
+        score_message_rect = score_message.get_rect(center = (400, 330))
+        screen.blit(game_name, game_name_rect)
+        if score == 0:
+            screen.blit(game_message, game_message_rect)
+        else:
+            screen.blit(score_message, score_message_rect)
+    pygame.display.update()
+    clock.tick(60)
